@@ -3,33 +3,11 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  outputs =
-    { nixpkgs, ... }:
-    (
-      let
-        inherit (nixpkgs) lib;
-        forAllSystems = lib.genAttrs lib.systems.flakeExposed;
-      in
-      {
-        libTests = import ./tests.nix { inherit lib; };
-        lib =
-          let
-            types = import ./types.nix;
-          in
-          types
-          // {
-            inherit types;
-          };
-
-        devShells = forAllSystems (
-          system:
-          let
-            pkgs = nixpkgs.legacyPackages.${system};
-          in
-          {
-            default = pkgs.callPackage ./shell.nix { };
-          }
-        );
-      }
-    );
+  outputs = {nixpkgs, ...}: (
+    let
+      inherit (nixpkgs) lib;
+    in {
+      lib = import ./default.nix {inherit lib;};
+    }
+  );
 }
